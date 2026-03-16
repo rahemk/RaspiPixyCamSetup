@@ -16,7 +16,7 @@ sudo apt install -y \
 
 echo "[2/7] Cloning Pixy repo..."
 if [ ! -d "${PIXY_REPO_DIR}/.git" ]; then
-  git clone https://github.com/charmedlabs/pixy.git "${PIXy_REPO_DIR}"
+  git clone https://github.com/charmedlabs/pixy.git "${PIXY_REPO_DIR}"
 else
   git -C "${PIXY_REPO_DIR}" pull --ff-only
 fi
