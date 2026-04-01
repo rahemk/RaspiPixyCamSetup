@@ -4,7 +4,7 @@ set -euo pipefail
 PIXY_REPO_DIR="${HOME}/pixy"
 WRAPPER_PATH="/usr/local/bin/pixy-g++"
 
-echo "[1/7] Installing dependencies..."
+echo "[1/8] Installing dependencies..."
 sudo apt update
 sudo apt install -y \
   git \
@@ -14,25 +14,38 @@ sudo apt install -y \
   libusb-1.0-0-dev \
   libboost-all-dev
 
-echo "[2/7] Cloning Pixy repo..."
+echo "[2/8] Cloning Pixy repo..."
 if [ ! -d "${PIXY_REPO_DIR}/.git" ]; then
   git clone https://github.com/charmedlabs/pixy.git "${PIXY_REPO_DIR}"
 else
   git -C "${PIXY_REPO_DIR}" pull --ff-only
 fi
 
-echo "[3/7] Building libpixyusb..."
+echo "[3/8] Building libpixyusb..."
 cd "${PIXY_REPO_DIR}/scripts"
 chmod +x ./*.sh
 ./build_libpixyusb.sh
 
-echo "[4/7] Installing libpixyusb..."
+echo "[4/8] Installing libpixyusb..."
 sudo ./install_libpixyusb.sh
 
-echo "[5/7] Refreshing linker cache..."
+UDEV_RULES_PATH="/etc/udev/rules.d/99-pixy.rules"
+
+echo "[5/8] Installing Pixy udev rules..."
+sudo tee "${UDEV_RULES_PATH}" > /dev/null <<'EOF'
+# Pixy device, set permissions
+SUBSYSTEM=="usb", ATTR{idVendor}=="b1ac", ATTR{idProduct}=="f000", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1fc9", ATTR{idProduct}=="000c", MODE="0666"
+EOF
+
+sudo chmod 644 "${UDEV_RULES_PATH}"
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+
+echo "[6/8] Refreshing linker cache..."
 sudo ldconfig
 
-echo "[6/7] Detecting Pixy include/lib paths..."
+echo "[7/8] Detecting Pixy include/lib paths..."
 PIXY_INCLUDE_DIR=""
 PIXY_LIB_DIR=""
 
@@ -74,7 +87,7 @@ fi
 echo "  pixy include dir: ${PIXY_INCLUDE_DIR}"
 echo "  pixy lib dir:     ${PIXY_LIB_DIR}"
 
-echo "[7/7] Creating global compiler wrapper at ${WRAPPER_PATH} ..."
+echo "[8/8] Creating global compiler wrapper at ${WRAPPER_PATH} ..."
 sudo tee "${WRAPPER_PATH}" > /dev/null <<EOF
 #!/usr/bin/env bash
 set -e
