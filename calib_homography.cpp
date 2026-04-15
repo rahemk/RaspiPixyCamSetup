@@ -9,7 +9,7 @@
 
 #include "pixy.h"
 
-static const int TARGET_SIGNATURE = 2; //Specify Signature
+static const int TARGET_SIGNATURE = 1; //Specify Signature
 
 struct Pt2
 {
