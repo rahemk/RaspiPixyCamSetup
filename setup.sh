@@ -84,6 +84,13 @@ if [ -z "${PIXY_INCLUDE_DIR}" ] || [ -z "${PIXY_LIB_DIR}" ]; then
   exit 1
 fi
 
+if [ -f /usr/include/libusb-1.0/libusb.h ]; then
+  sudo ln -sf /usr/include/libusb-1.0/libusb.h /usr/local/include/libusb.h
+else
+  echo "[ERR] /usr/include/libusb-1.0/libusb.h not found"
+  exit 1
+fi
+
 echo "  pixy include dir: ${PIXY_INCLUDE_DIR}"
 echo "  pixy lib dir:     ${PIXY_LIB_DIR}"
 
